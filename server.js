@@ -12,10 +12,18 @@ app.use(cors()); // Allows our frontend to communicate with this server
 app.use(express.json()); // Allows the server to understand JSON data
 app.use(express.urlencoded({ extended: true })); // Allows the server to understand form data
 
+// Test route to verify server is working
+app.get('/', (req, res) => {
+    res.json({ message: 'ERAM Publishing House Backend is running!' });
+});
+
 // 4. Create the main route for handling form submissions
 app.post('/send-email', (req, res) => {
     // Get the data from the form submission
     const { name, email, phone, message } = req.body;
+    
+    // Debug logging
+    console.log('Received form data:', { name, email, phone, message });
 
     // 5. Set up Nodemailer to send the email
     // IMPORTANT: You need to use an "App Password" for Gmail, not your regular password.
@@ -47,16 +55,16 @@ app.post('/send-email', (req, res) => {
     // 7. Send the email
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-            console.log(error);
-            res.status(500).send('Something went wrong.');
+            console.log('Email error:', error);
+            res.status(500).json({ error: 'Failed to send email', details: error.message });
         } else {
-            console.log('Email sent: ' + info.response);
-            res.status(200).send('Email sent successfully!');
+            console.log('Email sent successfully:', info.response);
+            res.status(200).json({ success: true, message: 'Email sent successfully!' });
         }
     });
 });
 
 // 8. Start the server
 app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
+    console.log(`Server is running on http://:${port}`);
 });
